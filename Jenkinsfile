@@ -10,7 +10,7 @@ pipeline {
         IMAGE_NAME      = "damolak-app"
         CONTAINER_NAME  = "damolak-app-container"
         APP_PORT        = "3000"
-        APP_SERVER_IP   = "10.0.1.176"
+        APP_SERVER_IP   = "10.0.1.189"
         APP_SERVER_USER = "ubuntu"
         APP_KEY         = "/var/lib/jenkins/damolak_app_keypair.pem"
     }
