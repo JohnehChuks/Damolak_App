@@ -1,6 +1,6 @@
 // =============================================================
 // Jenkinsfile — Damolak App CI/CD Pipeline
-// Stages: Clone → Build → Test → Deploy
+// Stages: Clone → Build → Test → Deploy to App Server
 // =============================================================
 
 pipeline {
@@ -11,6 +11,8 @@ pipeline {
         CONTAINER_NAME  = "damolak-app-container"
         APP_PORT        = "3000"
         APP_SERVER_IP   = "99.80.245.28"
+        APP_SERVER_USER = "ubuntu"
+        APP_KEY         = "/var/lib/jenkins/damolak_app_keypair.pem"
     }
 
     stages {
@@ -51,19 +53,33 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying Damolak App...'
+                echo 'Deploying to App Server...'
                 sh """
-                    docker stop ${CONTAINER_NAME} || true
-                    docker rm ${CONTAINER_NAME} || true
-                    docker run -d \
-                        --name ${CONTAINER_NAME} \
-                        --restart always \
-                        -p ${APP_PORT}:80 \
-                        ${IMAGE_NAME}:latest
+                    # Save Docker image to tar file
+                    docker save ${IMAGE_NAME}:latest | gzip > /tmp/${IMAGE_NAME}.tar.gz
+
+                    # Copy image to App server
+                    scp -i ${APP_KEY} \
+                        -o StrictHostKeyChecking=no \
+                        /tmp/${IMAGE_NAME}.tar.gz \
+                        ${APP_SERVER_USER}@${APP_SERVER_IP}:/tmp/${IMAGE_NAME}.tar.gz
+
+                    # Load and run image on App server
+                    ssh -i ${APP_KEY} \
+                        -o StrictHostKeyChecking=no \
+                        ${APP_SERVER_USER}@${APP_SERVER_IP} '
+                            docker load < /tmp/${IMAGE_NAME}.tar.gz
+                            docker stop damolak-app-container || true
+                            docker rm damolak-app-container || true
+                            docker run -d \
+                                --name damolak-app-container \
+                                --restart always \
+                                -p 3000:80 \
+                                damolak-app:latest
+                        '
                 """
             }
         }
-
     }
 
     post {
