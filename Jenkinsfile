@@ -19,7 +19,7 @@ pipeline {
             steps {
                 echo 'Cloning Damolak App repository...'
                 git branch: 'main',
-                    url: 'https://github.com/JohnehChuks/Damolak_App_Terraform.git'
+                    url: 'https://github.com/JohnehChuks/Damolak_App.git'
             }
         }
 
