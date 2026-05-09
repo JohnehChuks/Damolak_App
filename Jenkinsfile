@@ -18,7 +18,7 @@ pipeline {
         stage('Clone') {
             steps {
                 echo 'Cloning Damolak App repository...'
-                git branch: 'main',
+                git branch: 'developer',
                     url: 'https://github.com/JohnehChuks/Damolak_App.git'
             }
         }
