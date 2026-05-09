@@ -1,94 +1,120 @@
 # Damolak App — DevOps Challenge
 
-A production-ready application deployment using modern DevOps practices.
+A production-ready web application deployed using modern DevOps practices.
 
 ---
 
-## Architecture Overview
-Browser
-│
-▼
-Apache2 (port 80) — App Server: 99.80.245.28
-│
-▼
-Docker Container — Nginx (port 3000)
-│
-▼
-Damolak HTML Application
+## Application Overview
+
+A responsive financial HTML5 web application served via Nginx inside a Docker container, deployed automatically through a Jenkins CI/CD pipeline.
+
+---
+
+## Repository Structure
+
+Damolak_Root/
+├── damolak/          ← HTML web application
+│   ├── index.html
+│   ├── about-us.html
+│   ├── our-services.html
+│   ├── contact-us.html
+│   ├── assets/
+│   └── vendor/
+├── Dockerfile        ← Builds Nginx container serving the app
+├── Jenkinsfile       ← CI/CD pipeline definition
+└── README.md         ← This file
+
+---
 
 ## Tech Stack
 
 | Tool | Purpose |
 |---|---|
-| Terraform | Infrastructure provisioning |
-| AWS EC2 | Cloud servers |
+| HTML5 / CSS3 / JS | Frontend application |
+| Docker + Nginx | Containerization and web serving |
 | Jenkins | CI/CD pipeline |
-| Docker | Containerization |
-| Nginx | Web server inside container |
 | Apache2 | Reverse proxy on App server |
-| Git | Version control |
+| GitHub | Source code management |
+
+---
+
+## CI/CD Pipeline
+
+The `Jenkinsfile` defines a 4-stage pipeline:
+
+| Stage | What Happens |
+|---|---|
+| Clone | Pulls latest code from GitHub developer branch |
+| Build | Builds Docker image using Nginx alpine |
+| Test | Runs container and verifies with curl |
+| Deploy | Copies image to App server and runs container |
+
+---
+
+## Application URLs
+
+| Resource | URL |
+|---|---|
+| Live App | http://54.77.250.195 |
+| Jenkins | http://52.50.38.231:8080 |
 
 ---
 
 ## Deployment Steps
 
-### 1. Infrastructure
-```bash
-cd damolak-terraform
-export TF_VAR_aws_access_key=$Damolak_key
-export TF_VAR_aws_secret_key=$Damolak_secret_key
-terraform init
-terraform apply
-```
+### Automatic (via Jenkins)
+1. Push code to `developer` branch
+2. Jenkins automatically picks up changes
+3. Pipeline builds, tests and deploys
 
-### 2. Access Jenkins
-http://52.50.38.231:8080
-
-### 3. Run Pipeline
-- Open Jenkins
-- Click damolak-pipeline
-- Click Build Now
-
-### 4. Access App
-http://99.80.245.28
+### Manual Pipeline Trigger
+1. Open Jenkins at `http://52.50.38.231:8080`
+2. Click `damolak-pipeline`
+3. Click `Build Now`
 
 ---
 
-## CI/CD Pipeline Stages
+## Docker Details
 
-| Stage | What Happens |
-|---|---|
-| Clone | Pulls latest code from GitHub |
-| Build | Builds Docker image from Dockerfile |
-| Test | Runs container and tests with curl |
-| Deploy | Stops old container and runs new one |
+The app runs inside an Nginx Alpine container:
+
+```dockerfile
+FROM nginx:alpine
+COPY damolak/ /usr/share/nginx/html/
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+Apache2 on the App server proxies port 80 → container port 3000.
 
 ---
 
 ## Design Decisions
 
-- Used Nginx inside Docker for serving static files — lightweight and fast
-- Apache2 on App server acts as reverse proxy to Docker container
-- Elastic IPs used on both servers to maintain static IP addresses
-- Separate security groups for Jenkins and App server
-- Single shared VPC for both servers
-- Remote Terraform state stored in S3 with DynamoDB locking
+| Decision | Rationale |
+|---|---|
+| Nginx inside Docker | Lightweight and fast for static HTML |
+| Apache2 as reverse proxy | Decouples web layer from container |
+| Developer branch workflow | Protects main branch from untested code |
+| Direct server deployment | Simple and effective for challenge scope |
 
 ---
 
 ## Assumptions
 
-- AWS credentials exported as environment variables
-- Both servers in eu-west-1 region
-- Ubuntu 24.04 LTS AMI used for both servers
-- Jenkins and App server on same VPC and subnet
+- Jenkins server has SSH access to App server via private IP
+- App server has Docker installed and running
+- Apache2 configured as reverse proxy to port 3000
 
 ---
 
-## Limitations and Improvements
+## Limitations and Future Improvements
 
-- Add HTTPS using AWS Certificate Manager and Load Balancer
-- Move App server to private subnet for better security
-- Add auto-scaling for production workloads
-- Add Slack notifications to Jenkins pipeline
-- Add automated rollback on deployment failure
+- Push Docker images to **AWS ECR** instead of direct transfer
+- Add **HTTPS** using Let's Encrypt or AWS Certificate Manager
+- Implement **Blue/Green deployment** for zero downtime
+- Add **automated rollback** on deployment failure
+- Add **Slack notifications** for pipeline status
+- Add **SonarQube** for code quality scanning
+- Use **Docker Compose** for multi-container setups
+
