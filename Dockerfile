@@ -9,10 +9,11 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy website files
-COPY Damolak_Root/damolak/ /usr/share/nginx/html/
+COPY damolak/ /usr/share/nginx/html/
 
 # Internal nginx port
 EXPOSE 80
 
 # Run nginx foreground
 CMD ["nginx", "-g", "daemon off;"]
+
