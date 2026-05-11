@@ -10,7 +10,6 @@ pipeline {
         IMAGE_NAME      = "damolak-app"
         CONTAINER_NAME  = "damolak-app-container"
         APP_PORT        = "3000"
-        APP_SERVER_IP   = "54.77.250.195"
         APP_SERVER_USER = "ubuntu"
         APP_KEY         = "/var/lib/jenkins/damolak_app_keypair.pem"
     }
@@ -50,6 +49,24 @@ pipeline {
                 """
             }
         }
+        
+        stage('Get App Server IP') {
+            steps {
+                echo 'Fetching App Server IP from Terraform output...'
+
+                script {
+                    env.APP_SERVER_IP = sh(
+                        script: '''
+                            cd Damolak_Terraform
+                            terraform output -raw app_server_public_ip
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                }
+
+                echo "App Server IP: ${APP_SERVER_IP}"
+            }
+        }    
 
         stage('Deploy') {
             steps {
@@ -62,20 +79,24 @@ pipeline {
                     scp -i ${APP_KEY} \
                         -o StrictHostKeyChecking=no \
                         /tmp/${IMAGE_NAME}.tar.gz \
-                        ${APP_SERVER_USER}@${APP_SERVER_IP}:/tmp/${IMAGE_NAME}.tar.gz
+                        ${APP_SERVER_USER}@${APP_SERVER_IP}:/tmp/${IMAGE_NAME}.tar.gz && \
+                       
+                    rm -f /tmp/${IMAGE_NAME}.tar.gz
 
                     # Load and run image on App server
                     ssh -i ${APP_KEY} \
                         -o StrictHostKeyChecking=no \
                         ${APP_SERVER_USER}@${APP_SERVER_IP} '
                             docker load < /tmp/${IMAGE_NAME}.tar.gz
-                            docker stop damolak-app-container || true
-                            docker rm damolak-app-container || true
+                            rm -f /tmp/${IMAGE_NAME}.tar.gz
+                            docker stop ${CONTAINER_NAME} || true
+                            docker rm ${CONTAINER_NAME} || true
+
                             docker run -d \
-                                --name damolak-app-container \
+                                --name ${CONTAINER_NAME} \
                                 --restart always \
-                                -p 3000:80 \
-                                damolak-app:latest
+                                -p ${APP_PORT}:80 \
+                                ${IMAGE_NAME}:latest
                         '
                 """
             }

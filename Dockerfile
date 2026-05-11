@@ -1,18 +1,18 @@
 # =============================================================
 # Dockerfile — Damolak App
-# Serves static HTML using Nginx on port 3000
+# Static website served with Nginx
 # =============================================================
 
 FROM nginx:alpine
 
-# Remove default Nginx static files
+# Remove default content
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy Damolak app into Nginx html folder
-COPY damolak/ /usr/share/nginx/html/
+# Copy website files
+COPY Damolak_Root/damolak/ /usr/share/nginx/html/
 
-# Expose port 3000
-EXPOSE 3000
+# Internal nginx port
+EXPOSE 80
 
-# Start Nginx
+# Run nginx foreground
 CMD ["nginx", "-g", "daemon off;"]

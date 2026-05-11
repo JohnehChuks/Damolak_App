@@ -1,71 +1,77 @@
+````markdown
 # Damolak App — Production DevOps Deployment
 
-A **production-ready web application** deployed on **Amazon Web Services (AWS)** using modern DevOps practices including **Terraform Infrastructure as Code**, **Docker containerization**, and a fully automated **Jenkins CI/CD pipeline**.
+A production-ready web application deployed on **Amazon Web Services (AWS)** using modern DevOps practices including **Terraform Infrastructure as Code**, **Docker containerization**, and a fully automated **Jenkins CI/CD pipeline**.
 
-> ✅ **Project successfully executed, automated, and fully operational**
+✅ Project successfully executed, automated, and fully operational
 
----
-
-## Application Overview
-
-The Damolak App is a responsive HTML5 web application served through **Nginx inside a Docker container**, automatically built and deployed to an AWS EC2 App Server via a Jenkins pipeline running on a separate Jenkins EC2 server.
-
-The web files used for this project were sourced from a public HTML template and slightly modified to fit the project purpose.
+**Production-ready web App source:** Mexant Financial HTML5 template.
 
 ---
 
-## Architecture & Infrastructure Design
+# Application Overview
 
-The complete infrastructure architecture and Terraform tree structures are provided in:
+The Damolak App is a responsive HTML5 web application served through **Nginx inside a Docker container**, automatically built and deployed to an AWS EC2 App Server through a Jenkins pipeline running on a separate Jenkins EC2 server.
 
-* `assets/damalok_architecture.png`
-* `assets/damalok_structures.png`
+The web files used for this project were sourced from a public HTML template and professionally customized for deployment purposes.
+
+---
+
+# Architecture & Infrastructure Design
+
+The complete infrastructure architecture and Terraform tree structures are provided in the project documentation files:
+
+- `damolak_terraform/App_Structural_Design.pdf`
+- `damolak_terraform/App_Structural_Design.mht`
+- `Damolak_App/App_Structural_Design.pdf`
+- `Damolak_App/App_Structural_Design.mht`
 
 These diagrams illustrate:
 
-* VPC, Subnet, Security Groups
-* Jenkins Server and App Server
-* Elastic IP allocation
-* IAM roles and policies
-* Docker deployment flow
-* CI/CD pipeline integration
-* CloudWatch monitoring
-* S3 remote Terraform backend
-* ECR image registry flow
+- VPC, Subnet, Route Tables, Internet Gateway
+- Jenkins Server and App Server
+- Elastic IP allocation
+- IAM roles and policies
+- Docker deployment flow
+- Jenkins CI/CD pipeline flow
+- CloudWatch monitoring & alarms
+- S3 Terraform remote backend
+- ECR image registry workflow
 
 ---
 
-## GitHub Repositories
+# GitHub Repositories
 
-This project is organized into **two dedicated GitHub repositories** to clearly separate **Infrastructure as Code** from the **Application & CI/CD pipeline**, following real-world DevOps repository standards.
+This project is separated into two repositories following real-world DevOps standards.
 
-| Repository                | Purpose                                                                        | Link                                                                                                         |
-| ------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| Damolak_Jenkins_Terraform | Terraform provisioning for VPC, EC2, SG, IAM, EIP, S3 backend, ECR, CloudWatch | [Damalok_Jenkins_Terraform](https://github.com/JohnehChuks/Damolak_Jenkins_Terraform?utm_source=chatgpt.com) |
-| Damolak_App               | Web app source code, Dockerfile, Jenkinsfile, deployment pipeline              | [Damalok_App](https://github.com/JohnehChuks/Damolak_App?utm_source=chatgpt.com)                             |
-
----
-
-## Tools & Technologies Used
-
-| Tool           | Purpose                                                     |
-| -------------- | ----------------------------------------------------------- |
-| Terraform      | Infrastructure as Code (VPC, EC2, SG, IAM, EIP, S3 backend) |
-| Docker         | Application containerization                                |
-| Jenkins        | CI/CD automation server                                     |
-| AWS EC2        | Jenkins Server & Application Server                         |
-| AWS ECR        | Docker image registry                                       |
-| AWS S3         | Remote Terraform state backend                              |
-| AWS CloudWatch | Monitoring and logging                                      |
-| Apache2        | Reverse proxy on App Server                                 |
-| Git & GitHub   | Source code management                                      |
-| Nginx          | Web server inside container                                 |
+| Repository | Purpose |
+|-----------|---------|
+| Damolak_Jenkins_Terraform | Infrastructure provisioning (VPC, EC2, SG, IAM, EIP, S3 backend, ECR, CloudWatch) |
+| Damolak_App | Web app source code, Dockerfile, Jenkinsfile, CI/CD deployment |
 
 ---
 
-## Full Project Structure
+# Tools & Technologies Used
 
-```
+| Tool | Purpose |
+|------|---------|
+| Terraform | Infrastructure as Code |
+| Docker | Application containerization |
+| Jenkins | CI/CD automation |
+| AWS EC2 | Jenkins Server & App Server |
+| AWS ECR | Docker image registry |
+| AWS S3 | Terraform remote state backend |
+| AWS DynamoDB | Terraform state locking |
+| AWS CloudWatch | Monitoring and logging |
+| Apache2 | Reverse proxy on App Server |
+| Git & GitHub | Source control |
+| Nginx | Web server inside container |
+
+---
+
+# Full Project Structure
+
+```bash
 Web_App_Integration_&_deployment/
 │
 ├── Damolak_Terraform/
@@ -82,51 +88,49 @@ Web_App_Integration_&_deployment/
 │   ├── main.tf
 │   ├── terraform.tfvars
 │   ├── bootstrap.sh
-│   ├── damolak.tfplan
-│   ├── terraform.tfstate
-│   ├── terraform.tfstate.backup
-│   └── README.md
+│   ├── README.md
+│   ├── App_Structural_Design.pdf
+│   └── App_Structural_Design.mht
 │
 ├── key/
 │   ├── damolak_app_keypair.pem
-│   ├── damolak_app_keypair.pem.pub
 │   └── damolak_jenkins_keypair.pem
 │
 ├── scripts/
 │   ├── app_userdata.sh
 │   └── jenkins_userdata.sh
 │
-├── Damolak_Root/
-│   └── damolak/
-│       ├── index.html
-│       ├── about-us.html
-│       ├── our-services.html
-│       ├── contact-us.html
-│       ├── assets/
-│       └── vendor/
+├── damolak/
+│   ├── index.html
+│   ├── about-us.html
+│   ├── contact-us.html
+│   ├── our-services.html
+│   ├── assets/
+│   └── vendor/
 │
 ├── Dockerfile
 ├── Jenkinsfile
-└── README.md
-```
+├── README.md
+└── .gitignore
+````
 
 ---
 
-## CI/CD Pipeline Workflow (Jenkins)
+# CI/CD Pipeline Workflow (Jenkins)
 
-The Jenkins pipeline automates the entire deployment lifecycle.
+The Jenkins pipeline automates the full deployment lifecycle.
 
-| Stage  | Action                                                   |
-| ------ | -------------------------------------------------------- |
-| Clone  | Pull latest code from GitHub `developer` branch          |
-| Build  | Build Docker image using Nginx                           |
-| Test   | Run container and validate with curl                     |
-| Push   | Push Docker image to AWS ECR                             |
-| Deploy | SSH to App server, pull image from ECR and run container |
+| Stage  | Action                                        |
+| ------ | --------------------------------------------- |
+| Clone  | Pull latest code from GitHub developer branch |
+| Build  | Build Docker image                            |
+| Test   | Run container and validate with curl          |
+| Push   | Push image to AWS ECR                         |
+| Deploy | SSH into App Server and run latest container  |
 
 ---
 
-## Deployment URLs
+# Deployment URLs
 
 | Resource          | URL                                                  |
 | ----------------- | ---------------------------------------------------- |
@@ -135,7 +139,7 @@ The Jenkins pipeline automates the entire deployment lifecycle.
 
 ---
 
-## Docker Configuration
+# Docker Configuration
 
 ```dockerfile
 FROM nginx:alpine
@@ -144,50 +148,51 @@ EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-Apache2 on the App Server proxies:
+Apache2 on the App Server reverse proxies:
 
+```text
+Port 80  →  Docker Container Port 3000
 ```
-Port 80  →  Docker container port 3000
-```
 
 ---
 
-## Design Decisions & Rationale
+# Design Decisions & Rationale
 
-| Decision                         | Reason                                  |
-| -------------------------------- | --------------------------------------- |
-| Separate Jenkins and App servers | Production-style separation of concerns |
-| Terraform modular files          | Reusable, readable IaC structure        |
-| S3 remote backend                | State consistency and team readiness    |
-| Docker + Nginx                   | Lightweight and ideal for static apps   |
-| Apache reverse proxy             | Clean exposure of container service     |
-| ECR for images                   | Industry standard image registry        |
-| CloudWatch integration           | Monitoring and logging capability       |
-| Elastic IPs                      | Stable public access to servers         |
-
----
-
-## Assumptions
-
-* Jenkins has SSH access to App server
-* Docker is installed on both servers via Terraform user_data
-* IAM roles allow CloudWatch and ECR access
-* Security groups allow SSH, HTTP, HTTPS, and Jenkins port 8080
+| Decision                         | Reason                            |
+| -------------------------------- | --------------------------------- |
+| Separate Jenkins and App servers | Production-style separation       |
+| Terraform modular files          | Readable and scalable IaC         |
+| S3 backend + DynamoDB            | Safe remote state                 |
+| Docker + Nginx                   | Lightweight static app deployment |
+| Apache reverse proxy             | Clean traffic routing             |
+| ECR for images                   | Industry-standard image registry  |
+| CloudWatch integration           | Monitoring and alerts             |
+| Elastic IPs                      | Stable public access              |
 
 ---
 
-## Limitations & Future Improvements
+# Assumptions
 
-* Implement HTTPS using ACM / Let’s Encrypt
-* Introduce Blue/Green or Rolling deployments
-* Add SonarQube for code quality scanning
-* Add Slack/email notifications from Jenkins
-* Use Auto Scaling Group and Load Balancer
-* Migrate from EC2 to ECS/EKS for container orchestration
+* Jenkins has SSH access to App Server
+* Docker installed automatically via user_data
+* IAM role permits ECR and CloudWatch access
+* Security groups allow SSH, HTTP, HTTPS, Jenkins 8080
 
 ---
 
-## Outcome
+# Limitations & Future Improvements
+
+* Add HTTPS using ACM / Let’s Encrypt
+* Blue/Green deployments
+* SonarQube code quality scanning
+* Slack / Email Jenkins alerts
+* Auto Scaling Group + Load Balancer
+* Move workloads to ECS / EKS
+* Add WAF and private subnet design
+
+---
+
+# Outcome
 
 This project successfully demonstrates:
 
@@ -196,5 +201,9 @@ This project successfully demonstrates:
 * Containerized deployment with Docker
 * AWS best practices using ECR, S3 backend, IAM, and CloudWatch
 * Clean architecture and professional repository structure
+* Real-world DevOps workflow implementation
 
-> ✅ **Fully deployed, automated, and production-style environment aligned with real-world DevOps practices**
+✅ Fully deployed, automated, and production-style environment aligned with real-world DevOps engineering standards.
+
+```
+```
