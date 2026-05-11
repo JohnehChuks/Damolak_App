@@ -42,53 +42,48 @@ pipeline {
                         --name test-${BUILD_NUMBER} \
                         -p 3001:80 \
                         ${IMAGE_NAME}:${BUILD_NUMBER}
+
                     sleep 5
                     curl -f http://localhost:3001 || exit 1
+
                     docker stop test-${BUILD_NUMBER}
                     docker rm test-${BUILD_NUMBER}
                 """
             }
         }
-        
+
         stage('Get App Server IP') {
             steps {
-                echo 'Fetching App Server IP from Terraform output...'
+                echo 'Using configured App Server Elastic IP...'
 
                 script {
-                    env.APP_SERVER_IP = sh(
-                        script: '''
-                            cd Damolak_Terraform
-                            terraform output -raw app_server_public_ip
-                        ''',
-                        returnStdout: true
-                    ).trim()
+                    env.APP_SERVER_IP = "54.77.250.195"
                 }
 
                 echo "App Server IP: ${APP_SERVER_IP}"
             }
-        }    
+        }
 
         stage('Deploy') {
             steps {
                 echo 'Deploying to App Server...'
+
                 sh """
-                    # Save Docker image to tar file
                     docker save ${IMAGE_NAME}:latest | gzip > /tmp/${IMAGE_NAME}.tar.gz
 
-                    # Copy image to App server
                     scp -i ${APP_KEY} \
                         -o StrictHostKeyChecking=no \
                         /tmp/${IMAGE_NAME}.tar.gz \
-                        ${APP_SERVER_USER}@${APP_SERVER_IP}:/tmp/${IMAGE_NAME}.tar.gz && \
-                       
+                        ${APP_SERVER_USER}@${APP_SERVER_IP}:/tmp/${IMAGE_NAME}.tar.gz
+
                     rm -f /tmp/${IMAGE_NAME}.tar.gz
 
-                    # Load and run image on App server
                     ssh -i ${APP_KEY} \
                         -o StrictHostKeyChecking=no \
                         ${APP_SERVER_USER}@${APP_SERVER_IP} '
                             docker load < /tmp/${IMAGE_NAME}.tar.gz
                             rm -f /tmp/${IMAGE_NAME}.tar.gz
+
                             docker stop ${CONTAINER_NAME} || true
                             docker rm ${CONTAINER_NAME} || true
 
@@ -108,6 +103,7 @@ pipeline {
             echo 'Damolak App deployed successfully!'
             echo "Access at: http://${APP_SERVER_IP}"
         }
+
         failure {
             echo 'Pipeline failed! Check logs above.'
         }
