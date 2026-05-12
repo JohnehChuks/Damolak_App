@@ -51,22 +51,16 @@ pipeline {
         }
         
         stage('Get App Server IP') {
-            steps {
-                echo 'Fetching App Server IP from Terraform output...'
+    steps {
+        echo 'Using configured App Server Elastic IP...'
 
-                script {
-                    env.APP_SERVER_IP = sh(
-                        script: '''
-                            cd Damolak_Terraform
-                            terraform output -raw app_server_public_ip
-                        ''',
-                        returnStdout: true
-                    ).trim()
-                }
+        script {
+            env.APP_SERVER_IP = "54.77.250.195"
+        }
 
-                echo "App Server IP: ${APP_SERVER_IP}"
-            }
-        }    
+        echo "App Server IP: ${APP_SERVER_IP}"
+    }
+} 
 
         stage('Deploy') {
             steps {
